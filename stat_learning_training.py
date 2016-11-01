@@ -71,7 +71,7 @@ class SupervisedLearning:
         self.iris_y = self.iris.target
         print("Unique classifiers: ", np.unique(self.iris_y))
 
-    def nearest_neigbours_example(self, n_neighbours):
+    def nearest_neigbours_iris_example(self, n_neighbours):
         """
         Sample using nearest neighbours classification. It will plot the decision
         boundary for each class.
@@ -115,6 +115,27 @@ class SupervisedLearning:
             plt.title("3-Class classification (k = %i, weights = '%s')"
                       % (n_neighbours, weights))
             plt.show()
+
+    def split_train_test(self, data, target, estimator=neighbors.KNeighborsClassifier() ,rnd=np.random, set_seed=0):
+        """
+        This function takes a classifier and data and return a prediction and target for caomparison
+        :param data, target, rnd, set_seed: data=dataset no target, target=target vector, 
+                                           estimator: default KNeighboursClassifier() to match scikit learn example
+                                           rnd(optional):default np.random, set_seed(optional): seed value
+        :return y_train, y_test: return the train target and the test target for comparison
+        """
+        rnd.seed(set_seed)
+        inidices = np.random.permutation(len(data))
+        X_train = data[inidices[:-int(0.1*len(data))]]
+        y_train = target[inidices[:-int(0.1*len(data))]]
+        X_test = data[inidices[-int(0.1*len(data)):]]
+        y_test = target[inidices[-int(0.1*len(data)):]]
+        estimator.fit(X_train, y_train)
+        
+        # Create and fit a nearest neighbour estimator
+        return estimator.predict(X_test)
+        
+
 
 
 
