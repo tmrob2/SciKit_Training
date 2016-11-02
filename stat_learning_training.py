@@ -241,8 +241,8 @@ class SupervisedLearning:
         print(model.coef_)
         return model
 
-    def classification_example(self, X, X_train,y, y_train,
-                               model=linear_model.LogisticRegression(C=1e5)):
+    def classification_example(self, X, X_test, y, y_test,
+                               model1, model2):
         """
         here C in the default model is the inverse of the regularisation strength
         :param X:
@@ -252,7 +252,10 @@ class SupervisedLearning:
         :param model:
         :return:
         """
-        model.fit(X,y)
+        print("Model 1 predictive score: %f", model1.fit(X, y).score(X_test, y_test))
+        print("Model 2 predictive score: %f", model2.fit(X, y).score(X_test, y_test))
+
+        return model1, model2
 
 
 
