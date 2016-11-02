@@ -63,6 +63,13 @@ class SupervisedLearning:
 
     All supervised estimators in scikit-learn implement a fit(X,y) method and
     predict(X) method, given unlabled
+
+    Some key points:
+    Scikit provides Lasso object which solves tha lasso regression problem
+    using coordinate descent, this is most efficient on very large datasets
+
+    Scikit also provides the LassoLars object which is efficient for problems
+    in which the weight vector estimates is very sparse
     """
 
     def __init__(self):
@@ -130,10 +137,9 @@ class SupervisedLearning:
         y_train = target[inidices[:-int(0.1*len(data))]]
         X_test = data[inidices[-int(0.1*len(data)):]]
         y_test = target[inidices[-int(0.1*len(data)):]]
-        estimator.fit(X_train, y_train)
         
         # Create and fit a nearest neighbour estimator
-        return estimator.predict(X_test)
+        return X_train, y_train, X_test, y_test, estimator
 
     def diabetes_example(self):
         """
@@ -214,7 +220,39 @@ class SupervisedLearning:
                                        ).score(test_data, test_target)
                for alpha in alphas])
 
+    def sparse_methods_example(self, train_data, test_data,
+                               train_target, test_target,
+                               model=linear_model.Lasso()):
+        """
+        This approach is called Lasso: least absolute shrinkage and selction
+        operator. This helps deal with the dimension problem. i.e. running
+        through a large amound of permutations to get an answer
+        :return:
+        """
+        alphas = np.logspace(-4, -1, 6)
+        scores = [model.set_params(alpha=alpha).fit(train_data, train_target
+                                                    ).score(test_data, test_target)
+                  for alpha in alphas]
+        best_alpha = alphas[scores.index(max(scores))]
 
+        print(best_alpha)
+        model.alpha = best_alpha
+        model.fit(test_data, test_target)
+        print(model.coef_)
+        return model
+
+    def classification_example(self, X, X_train,y, y_train,
+                               model=linear_model.LogisticRegression(C=1e5)):
+        """
+        here C in the default model is the inverse of the regularisation strength
+        :param X:
+        :param X_train:
+        :param y:
+        :param y_train:
+        :param model:
+        :return:
+        """
+        model.fit(X,y)
 
 
 
