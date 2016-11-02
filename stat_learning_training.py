@@ -1,8 +1,8 @@
-from sklearn import datasets, neighbors
+from __future__ import print_function
+from sklearn import datasets, neighbors, linear_model
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
-
 
 class DS:
     def __init__(self):
@@ -134,7 +134,88 @@ class SupervisedLearning:
         
         # Create and fit a nearest neighbour estimator
         return estimator.predict(X_test)
-        
+
+    def diabetes_example(self):
+        """
+        Load the diabetes dataset
+        :return: diabetes_X_train, diabetes_X_test,
+        diabetes_y_train, diabetes_y_test
+        """
+        diabetes = datasets.load_diabetes()
+        diabetes_X_train = diabetes.data[:-20]
+        diabetes_X_test = diabetes.data[-20:]
+        diabetes_y_train = diabetes.target[:-20]
+        diabetes_y_test = diabetes.target[-20:]
+        return diabetes_X_train, diabetes_X_test, \
+               diabetes_y_train, diabetes_y_test
+
+    def fit_linear_model(self, data_train, target_train, data_test,
+                         target_test, model=linear_model.LinearRegression()):
+        """
+        Fits a linear model, however takes a model as a parameter so could
+        effectively change this to whatever, but would probably result in
+        an error because it may or may not have the appropriate attributes
+        :param data_train: training data R^2
+        :param target_train: target data R
+        :param data_test: testing data R^2
+        :param target_test: target evaluation against prediction R
+        :param model: a linear classifier defaults at linear model
+        :return: returns the model for further evaluation of attributes
+        """
+        model.fit(data_train, target_train)
+        print(model.coef_)
+        print(model.score(data_test, target_test))
+        return model
+
+    def shrinkage_example(self):
+        """
+        If there are few data points per dimension, noise in the observation
+        induces high variance. A solution to high-dimension statistical learning
+        is to shrink the regression coefficients to zero: any two randomly chosen
+        set of observations are likely to be uncorrelated. This is calles ridge
+        regression.
+        :return:
+        """
+
+        # c_ is equivalent to cbind
+        X = np.c_[0.5, 1].T
+        y = [0.5, 1]
+        test = np.c_[0, 2].T
+        regr = linear_model.LinearRegression()
+
+        plt.figure()
+
+        np.random.seed(0)
+        for _ in range(6):
+            this_X = 0.1*np.random.normal(size=(2, 1)) + X
+            regr.fit(this_X, y)
+            plt.plot(test, regr.predict(test))
+            plt.scatter(this_X, y, s=3)
+
+        # This is an example of the bias/variance trade off
+        # the larger the value of alpha the higher the bias
+        # and the lower the variance
+
+        regr_r = linear_model.Ridge(alpha=0.1)
+        plt.figure()
+        np.random.seed(0)
+        for _ in range(6):
+            this_X = 0.1*np.random.normal(size=(2, 1)) + X
+            regr_r.fit(this_X, y)
+            plt.plot(test, regr_r.predict(test))
+            plt.scatter(this_X, y, s=3)
+
+    def ridge_regression_example(self, train_data, test_data, train_target,
+                                 test_target, model=linear_model.Ridge()):
+        alphas = np.logspace(-4, -1, 6)
+
+        print([model.set_params(alpha=alpha
+                                 ).fit(train_data, train_target
+                                       ).score(test_data, test_target)
+               for alpha in alphas])
+
+
+
 
 
 
