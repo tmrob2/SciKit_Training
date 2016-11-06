@@ -1,5 +1,6 @@
 from __future__ import print_function
-from sklearn import datasets, neighbors, linear_model
+from sklearn import datasets, neighbors, linear_model, svm
+from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
@@ -257,6 +258,89 @@ class SupervisedLearning:
         print("Model 2 predictive score: %f", model2.fit(X, y).score(X_test, y_test))
 
         return model1, model2
+
+    def plotting_decision_surface(self, in_dataset):
+        """
+        Plotting the decision surface for classifiers
+        The linear models LinearSVC() and SVC(kernal='linear') yield
+        slightly different decision boundaries. This can be a consequence
+        of the following differences:
+        LinearSVC: minimises the squared hinge loss while SVC minimises
+        the regular hinge loss.
+        LinearSVC uses the One-vs-All multiclass reduction while SVC uses
+        the One-vs-One multiclass reduction
+
+        Both linear models have linear decision boundaries (intersecting
+        hyperplanes) while the non-linear kernal models (polynomial or
+        Gaussian RBF) have more flexible non-linear decision boundaries
+        with shapes that depend on the kind of kernal and its parameters
+
+        :return:
+        """
+
+        X = in_dataset.data[:, :2] #take the first two features of the dataset
+        y = in_dataset.target
+        h = 0.02 #Step size
+
+        # Ceate an instance of SVM and fit our data.
+        C = 1.0 # SVM regularisation parameter
+        # rbf - radial basic function
+        svc = SVC(kernel='linear', C=C).fit(X, y)
+        rbf_svc = SVC(kernel='rbf', gamma=0.7, C=C).fit(X, y)
+        poly_svc = SVC(kernel='poly', degree=3).fit(X, y)
+        lin_svc = svm.LinearSVC(C=C).fit(X, y)
+
+        # create a Mesh plot
+        x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+        y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+        xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                             np.arange(y_min, y_max, h))
+
+        titles = ['SVC with linear kernal',
+                  'LinearSVC (linear kernal)',
+                  'SVC with RBF kernal',
+                  'SVC with polynomial (degree 3) kernal']
+
+        for i, clf in enumerate((svc, lin_svc, rbf_svc, poly_svc)):
+            # Plot the decision boundary. Assign a colour for each
+            # point in the mesh [x_min, x_max].[y_min, y_max]
+            plt.subplot(2, 2, i + 1)
+            plt.subplots_adjust(wspace=0.4, hspace=0.4)
+
+            Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+
+            # put the result into a colour plot
+            Z = Z.reshape(xx.shape)
+            plt.contourf(xx, yy, Z, cmap=plt.cm.Paired, alpha=0.8)
+
+            # Plot the training points
+            plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Paired)
+            plt.xlabel('Sepal length')
+            plt.ylabel('Sepal width')
+            plt.xlim(xx.min(), xx.max())
+            plt.ylim(yy.min(), yy.max())
+            plt.xticks(())
+            plt.yticks(())
+            plt.title(titles[i])
+
+        plt.show()
+class Support_Vector_Machines:
+    """
+    Support vector machines belong to a discriminant model family: they try
+    to find a combination of samples to build a plane maximising the margin
+    between the two classes.
+
+    Regularisation is set by the parameter c: a small value for c means the
+    margin is claculated using many or all of the observations around the
+    seperating line (more regularisation); a large value for c means the
+    margin is calculated on observations close to the seperating line (less
+    regularisation)
+    """
+
+    def regression_support_vector_machines(self):
+        pass
+
+    def classification_support_vector_machines(self):
 
 
 
