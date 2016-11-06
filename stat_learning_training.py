@@ -242,14 +242,15 @@ class SupervisedLearning:
         return model
 
     def classification_example(self, X, X_test, y, y_test,
-                               model1, model2):
+                               model1, model2=None):
         """
         here C in the default model is the inverse of the regularisation strength
-        :param X:
-        :param X_train:
-        :param y:
-        :param y_train:
-        :param model:
+        :param X: This is the training data set 
+        :param X_test: This is the testing data set
+        :param y: this is the training target set
+        :param y_test: this is the testing target set for model scoring
+        :param model1: this is the first model that can be input into this example
+        :param model2 (optional): this is the second model that can be used as an estimate for the data set
         :return:
         """
         print("Model 1 predictive score: %f", model1.fit(X, y).score(X_test, y_test))
